@@ -15,3 +15,7 @@ This is a work in progress, and more tools and utilities will be added in stages
   - `chunking_utils.py`: Text chunking and preprocessing.
   - `KG_extraction_utils.py`: Knowledge extraction logic.
 - `test_data/`: Sample data for testing and development.
+
+## License
+
+This project is licensed under the MIT License.
