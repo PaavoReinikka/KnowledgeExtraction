@@ -1,33 +1,58 @@
-# Hybrid-Postgres (reinikp2/hybrid-postgres)
+# Database Infrastructure
 
-A custom PostgreSQL image tailored for modern AI applications and Hybrid RAG. It combines vector search, keyword search (BM25), and scheduled tasks.
+This directory contains the Docker configuration for the hybrid search backend (Postgres + pgvector + pg_search).
 
-## Included Extensions
+## Services
 
-- **[ParadeDB (pg_search)](https://github.com/paradedb/paradedb)**: High-performance BM25 and full-text search.
-- **[pgvector](https://github.com/pgvector/pgvector)**: Vector similarity search (for LLM embeddings).
-- **pg_cron**: For running periodic maintenance or extraction tasks within the database.
+- **PostgreSQL (`knowledge_db`)**: Custom image (`reinikp2/hybrid-postgres`) based on ParadeDB (BM25) with `pgvector` installed.
+- **Flyway**: Automated schema migration tool that applies scripts from `./database-migrations`.
 
-## Quick Start
+## Quick Start (Docker Compose)
 
+1. **Start services**:
+   ```bash
+   docker compose up -d
+   ```
+
+2. **Stop services**:
+   ```bash
+   docker compose down
+   ```
+
+3. **Reset everything** (Deletes all data!):
+   ```bash
+   docker compose down -v
+   ```
+
+## Debugging & Manual Access
+
+To enter the database manually via `psql`:
 ```bash
-docker run -d \
-  --name hybrid-db \
-  -e POSTGRES_PASSWORD=mypassword \
-  -p 5432:5432 \
-  reinikp2/hybrid-postgres:latest
+docker exec -it knowledge_db psql -U postgres -d knowledge_base
 ```
 
-## Usage in Docker Compose
-
-```yaml
-services:
-  db:
-    image: reinikp2/hybrid-postgres:latest
-    environment:
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: mypassword
-      POSTGRES_DB: hybrid-db
-    ports:
-      - "5433:5432"
+To view migration logs:
+```bash
+docker compose logs flyway
 ```
+
+## Connecting from Python
+
+Use the following environment variables or connection string:
+
+- **Host**: `localhost`
+- **Port**: `5433` (Mapped from container 5432 to avoid local conflicts)
+- **User**: `postgres`
+- **Password**: `mypassword`
+- **Database**: `knowledge_base`
+
+### Connection String (SQLAlchemy/psycopg2)
+`postgresql://postgres:mypassword@localhost:5433/knowledge_base`
+
+## Adding Migrations
+To evolve the schema, add new `.sql` files to `./database-migrations/` following the naming convention: `V2__description.sql`, `V3__...`. Flyway will apply them automatically on next start.
+
+---
+
+## Docker Hub Reference
+This image is published as `reinikp2/hybrid-postgres:latest`. 
