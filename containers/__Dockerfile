@@ -1,0 +1,11 @@
+# ParadeDB is built on top of standard Postgres and includes the BM25 logic.
+FROM paradedb/paradedb:latest
+
+# We need to install pgvector manually as it's not always in the base ParadeDB image
+USER root
+RUN apt-get update && apt-get install -y \
+    postgresql-17-pgvector \
+    && rm -rf /var/lib/apt/lists/*
+
+# Switch back to the postgres user
+USER postgres

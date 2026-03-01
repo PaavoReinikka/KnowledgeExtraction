@@ -1,0 +1,35 @@
+services:
+  db:
+    image: reinikp2/hybrid-postgres:latest
+    container_name: knowledge_db
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: mypassword
+      POSTGRES_DB: knowledge_base
+    ports:
+      - "5433:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -d knowledge_base -U postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    volumes:
+      - pgdata:/var/lib/postgresql
+    restart: always
+
+  flyway:
+    image: flyway/flyway:latest
+    command: migrate
+    volumes:
+      - ./database-migrations:/flyway/sql
+    environment:
+      - FLYWAY_URL=jdbc:postgresql://db:5432/knowledge_base
+      - FLYWAY_USER=postgres
+      - FLYWAY_PASSWORD=mypassword
+      - FLYWAY_CONNECT_RETRIES=60
+    depends_on:
+      db:
+        condition: service_healthy
+
+volumes:
+  pgdata:
