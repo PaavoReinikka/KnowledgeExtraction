@@ -111,8 +111,8 @@ def chunk_semantically_embeddings(text, embeddings=None, breakpoint_threshold_ty
     threshold_types: "percentile", "standard_deviation", "interquartile"
     """
     if embeddings is None:
-        # Fallback to fixed fake embeddings if no model is provided
-        # In a real app, pass a SentenceTransformer-based provider
+        print("No embeddings provided, using DeterministicFakeEmbedding for demonstration/development purposes.")
+        # In a real app, pass an Embeddings Interface compatible model here (e.g., HuggingFaceEmbeddings)
         embeddings = DeterministicFakeEmbedding(size=384)
     
     splitter = SemanticChunker(
