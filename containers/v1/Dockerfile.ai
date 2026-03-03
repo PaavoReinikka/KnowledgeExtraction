@@ -1,0 +1,35 @@
+# We use Timescale's image because it has Python/system deps pre-configured
+FROM timescale/timescaledb-ha:pg16
+
+USER root
+
+# Install build dependencies for Apache AGE and pg_search
+RUN apt-get update && apt-get install -y \
+    postgresql-server-dev-16 \
+    build-essential \
+    libreadline-dev \
+    zlib1g-dev \
+    flex \
+    bison \
+    python3-pip \
+    python3-dev \
+    git \
+    && rm -rf /var/lib/apt/lists/*
+
+# Install pgai and pg_net via PGX/pip or source
+# pgai specifically requires the 'requests' library in the system python
+RUN pip3 install requests openai anthropic cohere
+
+# Install Apache AGE (Graph Extension)
+RUN git clone --depth 1 https://github.com/apache/age.git /tmp/age && \
+    cd /tmp/age && \
+    make install && \
+    rm -rf /tmp/age
+
+# Note: pg_search and pgvector are typically pre-installed in 
+# high-end AI images, but we ensure they are enabled.
+# For ParadeDB's pg_search, it is often easier to use their base image,
+# but here we assume a unified build.
+
+USER postgres
+

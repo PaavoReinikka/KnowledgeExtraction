@@ -1,0 +1,61 @@
+services:
+  db:
+    image: reinikp2/ai-postgres:latest
+    build: .
+    container_name: knowledge_dbV2
+    env_file:
+      - .env
+    ports:
+      - "${DB_EXTERNAL_PORT:-5433}:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -d postgres -U postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    restart: always
+
+  flyway:
+    image: flyway/flyway:latest
+    command: migrate
+    volumes:
+      - ./database-migrations:/flyway/sql
+    env_file:
+      - .env
+    environment:
+      - FLYWAY_URL=jdbc:postgresql://db:5432/${POSTGRES_DB}
+      - FLYWAY_USER=${POSTGRES_USER}
+      - FLYWAY_PASSWORD=${POSTGRES_PASSWORD}
+      - FLYWAY_CONNECT_RETRIES=60
+    depends_on:
+      db:
+        condition: service_healthy
+
+  ollama:
+    image: ollama/ollama:latest
+    container_name: ollama_local
+    profiles: ["local-ai"]
+    env_file:
+      - .env
+    ports:
+      - "${OLLAMA_EXTERNAL_PORT:-11435}:11434"
+    volumes:
+      - ollama_data:/root/.ollama
+      - ./entrypoint.sh:/entrypoint.sh
+    entrypoint: ["/bin/bash", "/entrypoint.sh"]
+
+  ai-worker:
+    image: timescale/pgai-vectorizer-worker:latest
+    container_name: knowledge_ai_worker
+    depends_on:
+      - db
+    env_file:
+      - .env
+    environment:
+      - PGAI_VECTORIZER_WORKER_DB_URL=postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@db:5432/${POSTGRES_DB}
+    command: -d postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@db:5432/${POSTGRES_DB}
+
+volumes:
+  pgdata:
+  ollama_data:
