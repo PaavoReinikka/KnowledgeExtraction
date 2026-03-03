@@ -1,7 +1,4 @@
 -- V1__Initial_Schema.sql
--- Enable necessary extensions
-CREATE EXTENSION IF NOT EXISTS pg_search;
-CREATE EXTENSION IF NOT EXISTS vector;
 
 -- Create the initial documents table
 CREATE TABLE IF NOT EXISTS documents (
