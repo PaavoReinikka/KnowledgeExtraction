@@ -1,4 +1,8 @@
 -- V1__Initial_Schema.sql
+-- create all extensions if not already created (for safety, since we also have them in Dockerfile)
+CREATE EXTENSION IF NOT EXISTS vector CASCADE;
+CREATE EXTENSION IF NOT EXISTS age CASCADE;
+CREATE EXTENSION IF NOT EXISTS pg_search CASCADE;
 
 -- Create the initial documents table
 CREATE TABLE IF NOT EXISTS documents (
