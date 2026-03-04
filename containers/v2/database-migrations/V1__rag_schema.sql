@@ -1,4 +1,4 @@
--- 1. Enable pgai (Vector and Search are already enabled by your base image)
+-- 1. Enable pgai (Vector and Search are already enabled by the base image)
 CREATE EXTENSION IF NOT EXISTS plpython3u ;
 CREATE EXTENSION IF NOT EXISTS ai CASCADE ;
 
@@ -21,7 +21,7 @@ CREATE INDEX IF NOT EXISTS idx_chunks_embedding ON document_chunks USING hnsw (e
 
 -- 5. Set up Apache AGE Graph for Knowledge Graph relationships
 -- Entities and their relationships will be stored here
-SET search_path = public, ag_catalog;
+SET search_path = public, ag_catalog ;
 DO $$ 
 BEGIN
     IF NOT EXISTS (SELECT 1 FROM ag_catalog.ag_graph WHERE name = 'knowledge_graph') THEN
