@@ -13,21 +13,6 @@ A PostgreSQL-based RAG environment featuring:
    docker compose up --build -d
    ```
 
-## Push to Docker Hub
-If you want to push this image to your Docker Hub repository:
-
-1. Build and tag the image:
-   ```bash
-   docker compose build db
-   docker tag containersv2-db reinikp2/ai-postgres:latest
-   ```
-
-2. Login and Push:
-   ```bash
-   docker login
-   docker push reinikp2/ai-postgres:latest
-   ```
-
 ## Architecture
 - **db** (`reinikp2/ai-postgres`): Custom PostgreSQL 16 image with `pgai`, `age`, and `pg_search`.
 - **ai-worker**: Background worker that automatically manages embeddings for tables registered with `ai.create_vectorizer`.
