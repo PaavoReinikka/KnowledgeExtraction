@@ -58,10 +58,11 @@ class KnowledgeGraphPipeline:
         self.use_transformer = use_transformer
         self.embedder = KnowledgeEmbedder() if use_transformer else None
         # Fallback/Lite embedder for HDBSCAN
+        #TODO: Extract to a separate class to support another embedding strategy
         self.lite_embedder = SentenceTransformer("all-MiniLM-L6-v2")
 
     def _get_phrase_info(self, token, lemmatize=False) -> Tuple[str, str, Tuple[int, int]]:
-        """Modified from your utility: returns text/lemma AND char offsets."""
+        """returns text/lemma AND char offsets."""
         phrase_tokens = [w for w in token.subtree if w.dep_ in ("amod", "compound", "flat", "nummod")]
         for child in token.rights:
             if child.dep_ == "prep":
@@ -103,7 +104,7 @@ class KnowledgeGraphPipeline:
         return triplets
 
     def resolve_entities_hdbscan(self, mentions: List[str]) -> Dict[str, str]:
-        """Your original HDBSCAN strategy for global normalization."""
+        """Naive HDBSCAN strategy for global normalization."""
         if not mentions: return {}
         embeddings = self.lite_embedder.encode(list(set(mentions)))
         clusterer = HDBSCAN(min_cluster_size=2)
@@ -145,7 +146,6 @@ class KnowledgeGraphPipeline:
         sim_matrix = cosine_similarity(vec_matrix)
 
         # 3. Find pairs to merge and store with their similarity scores
-        # We use a list of tuples so we can sort by similarity
         merges = []
         for i in range(len(nodes)):
             for j in range(i + 1, len(nodes)):
@@ -158,7 +158,7 @@ class KnowledgeGraphPipeline:
         # Sort by similarity descending so we merge the most certain pairs first
         merges.sort(key=lambda x: x[0], reverse=True)
 
-        # 4. Perform the actual graph contraction
+        # 4. Perform graph contraction
         processed_sources = set()
         for score, source, target in merges:
             # Check if source hasn't already been merged into something else
@@ -183,7 +183,7 @@ class KnowledgeGraphPipeline:
         embedded_data = self.embedder.embed_batch(all_triplets)
         
         # 3. Unified Entity Resolution
-        # Instead of embedding strings, we group the high-quality vectors by lemma
+        # Instead of embedding strings, we group the vectors by lemma
         lemma_to_vectors = {}
         for item in embedded_data:
             t = item['triplet']
@@ -231,14 +231,15 @@ class KnowledgeGraphPipeline:
 
     def runV1(self, corpus: List[str], vector_refine: bool = True) -> nx.MultiDiGraph:
         # 1. Extraction
+        #TODO: Extract to a separate class to support another extraction strategy
         all_triplets = []
         for chunk in corpus:
             all_triplets.extend(self.extract_rich_triplets(chunk))
         
-        # 2. Embedding (The new robust way)
+        # 2. Embedding
         embedded_data = self.embedder.embed_batch(all_triplets) if self.use_transformer else []
         
-        # 3. Entity Resolution (Using your HDBSCAN logic on lemmas)
+        # 3. Entity Resolution (Using HDBSCAN logic on lemmas)
         all_mentions = [t.subj_lemma for t in all_triplets] + [t.obj_lemma for t in all_triplets]
         entity_map = self.resolve_entities_hdbscan(all_mentions)
         
@@ -254,14 +255,10 @@ class KnowledgeGraphPipeline:
                        subj_vec=data['embeddings']['subj'].numpy(),
                        obj_vec=data['embeddings']['obj'].numpy(),
                        context=t.sentence)
-        # 5. Optional Vector-Based Consolidation
-        if vector_refine:
-            print("Performing vector-based consolidation...")
-            G = self.consolidate_nodes_by_vector(G)
-
+        
         return G
 
-# --- Execution ---
+# --- Execution, for testing only ---
 if __name__ == "__main__":
     pipeline = KnowledgeGraphPipeline()
     sample_text = ["Apple Inc. creates the iPhone. The tech giant is based in Cupertino.",
