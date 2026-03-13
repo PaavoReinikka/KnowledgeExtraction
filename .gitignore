@@ -133,3 +133,5 @@ outputs/
 *.pkl
 *.pth
 *.joblib
+
+books_rag/
