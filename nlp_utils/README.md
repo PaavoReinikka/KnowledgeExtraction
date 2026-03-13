@@ -6,36 +6,11 @@ This folder contains utilities for natural language processing, including an `NL
 
 The utilities in this module rely heavily on the **Natural Language Toolkit (NLTK)**. 
 
-Because NLTK does not package its static word corpora (like stopword lists or the WordNet vocabulary) directly into its PyPI library, you **must download them manually** before initializing these tools on a new system. 
+Because NLTK does not package its static word corpora (like stopword lists or the WordNet vocabulary) directly into its PyPI library, they must be downloaded locally.
 
-If you do not download these, you will encounter `LookupError: Resource 'punkt_tab' not found.` or similar exceptions.
+**Good News:** The `nlp_utils` module handles this for you! 
 
-### Downloading the NLTK Corpora
-
-To download all the necessary dependencies, you can execute this one-liner from your terminal:
-
-```bash
-uv run python -c "import nltk; nltk.download('stopwords'); nltk.download('wordnet'); nltk.download('punkt'); nltk.download('punkt_tab'); nltk.download('averaged_perceptron_tagger_eng')"
-```
-
-Alternatively, if you prefer to run it inside a Python script or an interactive REPL:
-
-```python
-import nltk
-
-# Required for stop word removal
-nltk.download('stopwords')
-
-# Required for WordNet lemmatization
-nltk.download('wordnet')
-
-# Required for Punkt sentence tokenization
-nltk.download('punkt')
-nltk.download('punkt_tab')
-
-# Required for POS (Part of Speech) tagging
-nltk.download('averaged_perceptron_tagger_eng')
-```
+When you import anything from this module (e.g. `from nlp_utils import NLP_Tokenizer`), the `__init__.py` script automatically verifies if the required corpora (like `stopwords`, `wordnet`, `punkt_tab`, and `averaged_perceptron_tagger_eng`) exist on your machine. If any are missing, it quietly downloads them in the background on its first run.
 
 ## Usage Examples
 
@@ -44,7 +19,7 @@ nltk.download('averaged_perceptron_tagger_eng')
 You can pass the `tokenize` method of our custom tokenizer directly into vectorizers that expect a callable tokenizer. Scikit-learn will internally lower-case the text by default before passing it to this method.
 
 ```python
-from nlp_utils.nlp_tokenizer import NLP_Tokenizer
+from nlp_utils import NLP_Tokenizer
 from sklearn.feature_extraction.text import TfidfVectorizer
 
 # 1. Initialize your custom tokenizer
@@ -67,7 +42,7 @@ Because `NLP_Tokenizer` inherits from `BaseEstimator` and `TransformerMixin`, it
 This means you can chain it in a standard `Pipeline` and let the downstream vectorizer use its default space-splitting tokenization! This approach is generally preferred in ML as it makes saving algorithms and data streaming easier over time.
 
 ```python
-from nlp_utils.nlp_tokenizer import NLP_Tokenizer
+from nlp_utils import NLP_Tokenizer
 from sklearn.pipeline import Pipeline
 from sklearn.feature_extraction.text import CountVectorizer
 
