@@ -50,20 +50,6 @@ To seed the database with synthetic documents (vectors) and a test graph (AGE):
 uv run ../test_data/seed_data.py
 ```
 
-## Publishing to Docker Hub
-
-To build and publish a new version of the image:
-
-1. **Login**: `docker login`
-2. **Build and Tag**:
-   ```bash
-   docker build -t reinikp2/hybrid-postgres:latest -f Dockerfile.custom .
-   ```
-3. **Push**:
-   ```bash
-   docker push reinikp2/hybrid-postgres:latest
-   ```
-
 ## Usage Notes
 
 ### Apache AGE
