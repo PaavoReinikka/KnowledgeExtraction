@@ -12,7 +12,6 @@ from sklearn.base import BaseEstimator, TransformerMixin
 import numpy as np
 import matplotlib.pyplot as plt
 import string
-from collections import defaultdict
 from typing import Optional, Union, Set, List, Dict, Iterable, Generator, Any, Sequence
 
 class NLP_Tokenizer(BaseEstimator, TransformerMixin):
