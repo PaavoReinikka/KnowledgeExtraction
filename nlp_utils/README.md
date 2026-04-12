@@ -6,9 +6,7 @@ This folder contains utilities for natural language processing, including an `NL
 
 The utilities in this module rely heavily on the **Natural Language Toolkit (NLTK)**. 
 
-Because NLTK does not package its static word corpora (like stopword lists or the WordNet vocabulary) directly into its PyPI library, they must be downloaded locally.
-
-**Good News:** The `nlp_utils` module handles this for you! 
+Because NLTK does not package its static word corpora (like stopword lists or the WordNet vocabulary) directly into its PyPI library, they must be downloaded locally; the `nlp_utils` module handles this automagically.
 
 When you import anything from this module (e.g. `from nlp_utils import NLP_Tokenizer`), the `__init__.py` script automatically verifies if the required corpora (like `stopwords`, `wordnet`, `punkt_tab`, and `averaged_perceptron_tagger_eng`) exist on your machine. If any are missing, it quietly downloads them in the background on its first run.
 

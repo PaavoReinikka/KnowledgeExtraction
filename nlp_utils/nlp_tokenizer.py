@@ -5,7 +5,7 @@ from nltk import WordNetLemmatizer
 from nltk import sent_tokenize
 from nltk import pos_tag
 from nltk.probability import FreqDist
-from nltk.stem import SnowballStemmer, PorterStemmer
+from nltk.stem import SnowballStemmer#, PorterStemmer # as per need
 
 from sklearn.base import BaseEstimator, TransformerMixin
 
@@ -35,7 +35,7 @@ class NLP_Tokenizer(BaseEstimator, TransformerMixin):
         self.stopwords  = (stopwords if stopwords is not None else set()) | set(sw.words('english'))
         self.punct      = (punctuation if punctuation is not None else set()) | set(string.punctuation)
         self.lemmatizer = WordNetLemmatizer()
-        self.stemmer = SnowballStemmer('english')# PorterStemmer()
+        self.stemmer = SnowballStemmer('english')# PorterStemmer() # depending on need
         
         if(verbose):
             print("Preprocessor...\nlower: {}".format(self.lower))
@@ -224,7 +224,7 @@ if __name__ == '__main__':
     # These are just for testing
     from sklearn.feature_extraction.text import CountVectorizer
     
-    # 1. Provide some sample text chunks (acting as our documents)
+    # sample text chunks
     test_documents = [
         "Machine learning is a subset of artificial intelligence.",
         "It allows computers to learn from data.",
@@ -243,24 +243,24 @@ if __name__ == '__main__':
         print(f"Doc {i+1}: {doc}")
         
     print("\n--- 2. Testing Integration with CountVectorizer ---")
-    # We can pass our NLP_Tokenizer into Scikit-Learn Pipelines or Vectorizers!
+    # We can pass NLP_Tokenizer into Scikit-Learn Pipelines or Vectorizers.
     # Note: CountVectorizer does its own tokenization by default, but we can override it 
     # to just split by space since our tokenizer already outputs space-separated tokens.
     cv = CountVectorizer(tokenizer=lambda x: x.split(), preprocessor=lambda x: x)
     
-    # Fit the vectorizer on our pre-tokenized documents
+    # Fit the vectorizer on the pre-tokenized documents
     count_matrix = cv.fit_transform(processed_docs)
     
     print(f"Vocabulary Words: {cv.get_feature_names_out()}")
     print(f"Count Matrix Shape: {count_matrix.shape}")
     
     print("\n--- 3. Testing top_cluster_features ---")
-    # Let's mock some cluster labels (e.g. Doc 0/1 are cluster 0, Doc 2/3/4 are cluster 1)
+    # mock cluster labels (e.g. Doc 0/1 are cluster 0, Doc 2/3/4 are cluster 1)
     mock_labels = np.array([0, 0, 1, 1, 1])
     
-    # Get top 3 words for each of our 2 clusters
+    # Get top 3 words for both clusters
     top_words = top_cluster_features(count_matrix.toarray(), mock_labels, k=3)
     
-    # Print a nice table!
+    # Print pretty
     print("\nTop Words by Cluster:")
     print(table_top_words(cv, top_words))
