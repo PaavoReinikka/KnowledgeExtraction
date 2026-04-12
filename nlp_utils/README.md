@@ -10,6 +10,8 @@ Because NLTK does not package its static word corpora (like stopword lists or th
 
 When you import anything from this module (e.g. `from nlp_utils import NLP_Tokenizer`), the `__init__.py` script automatically verifies if the required corpora (like `stopwords`, `wordnet`, `punkt_tab`, and `averaged_perceptron_tagger_eng`) exist on your machine. If any are missing, it quietly downloads them in the background on its first run.
 
+**NOTE:** You might want to experiment with different stemmersvs lemmatizer; Porter, Snowball, or look for more options at https://www.nltk.org/api/nltk.stem.html .
+
 ## Usage Examples
 
 ### Option 1: Passing as the `tokenizer` parameter (The Direct Way)
